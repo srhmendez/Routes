@@ -70,19 +70,24 @@ router.put('/', (req, res) => {
     res.send(todos)
 })
 
+// setting global array
 let catArray = []
+//assigning it with todos from object on load
 getCategoriesFromTodos();
 
+// removes duplicates from categories array
 function removeDuplicatesFromCatArr(array) {
     let removeDuplicates = new Set(array);
     catArray = Array.from(removeDuplicates);
     return catArray
 }
+//gets categories from todos array
 function getCategoriesFromTodos() {
     todos.map((todo)=> catArray.push(formatInput(todo.category)));
     removeDuplicatesFromCatArr(catArray);
     return catArray;
 }
+// updates the global array after edit, delete, post
 function updateCatArray(editedArr) {
     catArray = editedArr;
     removeDuplicatesFromCatArr(catArray)
@@ -116,7 +121,7 @@ router.put('/category/edit/:category', (req, res) => {
     res.send(catArray)
    
 })
-
+// delete a category
 router.delete('/category/delete/:category', (req, res) => {
     let toDeleteObj = req.params;
     let catName = toDeleteObj.category;
