@@ -36,19 +36,29 @@ const router = express.Router();
 //all routes are starting with /todos
 
 
+//get all todos
 router.get('/', (req, res) => {
     res.send(todos);
 })
+//get all todos from certain category
+router.get('/:category', (req, res) => {
+    const { category } = req.params;
+    let matchedCats = todos.filter((todo)=> (todo.category === category));
+    res.send(matchedCats);
+})
+//add a todo
 router.post('/', (req, res) => {
     let newTodo = req.body
     todos.push(newTodo);
     res.send(todos)
 })
+//delete a todo
 router.delete('/:id', (req, res) => {
     const { id } = req.params;
     todos = todos.filter((todo) => todo.id != id);
     res.send(`user with the id: ${id} was deleted from Database`)  
 })
+//update a todo
 router.put('/', (req, res) => {
     let editedTodo = req.body;
     const id = editedTodo.id;
@@ -60,32 +70,70 @@ router.put('/', (req, res) => {
     res.send(todos)
 })
 
+let catArray = []
+getCategoriesFromTodos();
 
-//categories endpoints
-const categories = [];
+function removeDuplicatesFromCatArr(array) {
+    let removeDuplicates = new Set(array);
+    catArray = Array.from(removeDuplicates);
+    return catArray
+}
+function getCategoriesFromTodos() {
+    todos.map((todo)=> catArray.push(formatInput(todo.category)));
+    removeDuplicatesFromCatArr(catArray);
+    return catArray;
+}
+function updateCatArray(editedArr) {
+    catArray = editedArr;
+    removeDuplicatesFromCatArr(catArray)
+    return catArray;
+}
 
-router.get('/categories', (req, res) => {
-    todos.filter((todo)=> categories.push(todo.category));
-    let setCats = new Set(categories);
-    let catsArrayNoDuplicates = [...setCats]
-    res.send(catsArrayNoDuplicates);
+//get all categories
+router.get('/category/all', (req, res) => {
+    removeDuplicatesFromCatArr(catArray);
+    res.send(catArray);
+
+})
+//add a new category
+router.post('/category/new/:name', (req, res) => {
+    const { name } = req.params;
+    catArray.push(formatInput(name));
+    removeDuplicatesFromCatArr(catArray);
+    res.send(catArray)
+
+})
+//update a category
+router.put('/category/edit/:category', (req, res) => {
+    let catObject = req.params;
+    let newCatName = req.body.category;
+    let name = catObject.category;
+    let oldCatName = formatInput(name);
+    newCatName = formatInput(newCatName);
+    let index = catArray.indexOf(oldCatName);
+    catArray.splice(index, 1, newCatName);
+    updateCatArray(catArray);
+    res.send(catArray)
+   
 })
 
-
-router.post('/categories', (req, res) => {
-
-    router.get('/categories', (req, res) => {
-        todos.filter((todo)=> categories.push(todo.category));
-        let setCats = new Set(categories);
-        let catsArrayNoDuplicates = [...setCats]
-        res.send(catsArrayNoDuplicates);
-    })
-    let input = req.body;
-    categories.push(input.category)
-    let setCats = new Set(categories);
-    let catsArrayNoDuplicates = [...setCats]
-    res.send(catsArrayNoDuplicates);
-    res.send(categories)
+router.delete('/category/delete/:category', (req, res) => {
+    let toDeleteObj = req.params;
+    let catName = toDeleteObj.category;
+    catName = formatInput(catName);
+    let index = catArray.indexOf(catName);
+    console.log(index);
+    if (index === -1){
+        res.send('Item does not exist')
+    } else {
+        catArray.splice(index, 1);
+        updateCatArray(catArray);
+        res.send(catArray);
+    }
 })
 
-export default router
+function formatInput(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
+
+export default router;
