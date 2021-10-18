@@ -1,11 +1,41 @@
 import express from 'express';
-import todos from '../data.json';
+
+
+
+let todos = [
+    {
+        "id": 1,
+        "name": "Go to work",
+        "complete": false,
+        "category": "Work"
+    },
+    {
+        "id": 2,
+        "name": "Go to school",
+        "complete": false,
+        "category": "School"
+    },
+    {
+        "id": 3,
+        "name": "Go to the dentist",
+        "complete": false,
+        "category": "Health Care"
+    },
+    {
+        "id": 4,
+        "name": "Go to the gym",
+        "complete": false,
+        "category": "Health"
+    }
+]
+
+
 const router = express.Router();
 
 
 //all routes are starting with /todos
 
-//todos endpoints
+
 router.get('/', (req, res) => {
     res.send(todos);
 })
